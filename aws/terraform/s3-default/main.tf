@@ -22,6 +22,7 @@ resource "aws_s3_bucket" "uut" {
   bucket = "${local.prefix}-uut"
 
   force_destroy = true
+  request_payer = "Requester"
 }
 resource "aws_s3_bucket_ownership_controls" "uut" {
   bucket = aws_s3_bucket.uut.id
@@ -59,4 +60,10 @@ resource "aws_s3_object" "uut" {
 
   key    = "helloworld"
   source = "files/test.txt"
+}
+resource "aws_s3_bucket_versioning" "my_aws_s3_bucket_versioning_aws_s3_bucket_uut" {
+  bucket = aws_s3_bucket.uut.id
+  versioning_configuration {
+    status = "Enabled"
+  }
 }
