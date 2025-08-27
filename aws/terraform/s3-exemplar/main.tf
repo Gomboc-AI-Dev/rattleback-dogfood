@@ -22,6 +22,7 @@ resource "aws_s3_bucket" "uut" {
   // are now separate objects.
 
   tags = local.tags
+request_payer = "Requester"
 }
 resource "aws_s3_bucket_ownership_controls" "uut" {
   count = var.disable_uut ? 0 : 1
@@ -114,6 +115,7 @@ resource "aws_s3_bucket" "uut_with_deprecation" {
   }
 
   tags = local.tags
+request_payer = "Requester"
 }
 
 resource "aws_s3_object" "uut_with_deprecation" {
@@ -135,6 +137,7 @@ resource "aws_s3_bucket" "logs" {
   force_destroy = true
 
   tags = local.tags
+request_payer = "Requester"
 }
 resource "aws_s3_bucket_ownership_controls" "logs" {
   bucket = aws_s3_bucket.logs.id
@@ -189,3 +192,27 @@ resource "aws_kms_alias" "s3_key" {
   target_key_id = aws_kms_key.s3_key.id
 }
 ###############################################################################
+resource "aws_s3_bucket_versioning" "my_aws_s3_bucket_versioning_aws_s3_bucket_uut" {
+bucket = aws_s3_bucket.uut.id
+versioning_configuration {
+status = "Enabled"
+}
+}
+resource "aws_s3_bucket_versioning" "my_aws_s3_bucket_versioning_aws_s3_bucket_uut_with_deprecation" {
+bucket = aws_s3_bucket.uut_with_deprecation.id
+versioning_configuration {
+status = "Enabled"
+}
+}
+resource "aws_s3_bucket_public_access_block" "my_aws_s3_bucket_public_access_block_aws_s3_bucket_uut" {
+bucket = aws_s3_bucket.uut.id
+ignore_public_acls = true
+}
+resource "aws_s3_bucket_public_access_block" "my_aws_s3_bucket_public_access_block_aws_s3_bucket_uut_with_deprecation" {
+bucket = aws_s3_bucket.uut_with_deprecation.id
+ignore_public_acls = true
+}
+resource "aws_s3_bucket_public_access_block" "my_aws_s3_bucket_public_access_block_aws_s3_bucket_logs" {
+bucket = aws_s3_bucket.logs.id
+ignore_public_acls = true
+}
