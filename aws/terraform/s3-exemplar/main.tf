@@ -16,12 +16,13 @@ resource "aws_s3_bucket" "uut" {
 
   bucket = "${local.prefix}-uut"
 
-  force_destroy = true
+  force_destroy = "CUSTOMER_INPUT"
 
   // this doesn't use the acl, logging, encyrption, or logging blocks as those
   // are now separate objects.
 
-  tags = local.tags
+  tags          = local.tags
+  request_payer = "Requester"
 }
 resource "aws_s3_bucket_ownership_controls" "uut" {
   count = var.disable_uut ? 0 : 1
@@ -90,7 +91,7 @@ resource "aws_s3_bucket" "uut_with_deprecation" {
 
   bucket = "${local.prefix}-uut-with-deprecation"
 
-  force_destroy = true
+  force_destroy = "CUSTOMER_INPUT"
 
   acl = "private"
 
@@ -113,7 +114,8 @@ resource "aws_s3_bucket" "uut_with_deprecation" {
     target_prefix = "uut-with-deprecation/"
   }
 
-  tags = local.tags
+  tags          = local.tags
+  request_payer = "Requester"
 }
 
 resource "aws_s3_object" "uut_with_deprecation" {
@@ -132,9 +134,10 @@ resource "aws_s3_object" "uut_with_deprecation" {
 resource "aws_s3_bucket" "logs" {
   bucket = "${local.prefix}-logs"
 
-  force_destroy = true
+  force_destroy = "CUSTOMER_INPUT"
 
-  tags = local.tags
+  tags          = local.tags
+  request_payer = "Requester"
 }
 resource "aws_s3_bucket_ownership_controls" "logs" {
   bucket = aws_s3_bucket.logs.id
@@ -189,3 +192,27 @@ resource "aws_kms_alias" "s3_key" {
   target_key_id = aws_kms_key.s3_key.id
 }
 ###############################################################################
+resource "aws_s3_bucket_versioning" "my_aws_s3_bucket_versioning_aws_s3_bucket_uut" {
+  bucket = aws_s3_bucket.uut.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+resource "aws_s3_bucket_versioning" "my_aws_s3_bucket_versioning_aws_s3_bucket_uut_with_deprecation" {
+  bucket = aws_s3_bucket.uut_with_deprecation.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+resource "aws_s3_bucket_public_access_block" "my_aws_s3_bucket_public_access_block_aws_s3_bucket_uut" {
+  bucket             = aws_s3_bucket.uut.id
+  ignore_public_acls = true
+}
+resource "aws_s3_bucket_public_access_block" "my_aws_s3_bucket_public_access_block_aws_s3_bucket_uut_with_deprecation" {
+  bucket             = aws_s3_bucket.uut_with_deprecation.id
+  ignore_public_acls = true
+}
+resource "aws_s3_bucket_public_access_block" "my_aws_s3_bucket_public_access_block_aws_s3_bucket_logs" {
+  bucket             = aws_s3_bucket.logs.id
+  ignore_public_acls = true
+}
